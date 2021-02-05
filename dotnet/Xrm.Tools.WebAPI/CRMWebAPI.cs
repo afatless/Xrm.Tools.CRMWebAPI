@@ -471,12 +471,11 @@ namespace Xrm.Tools.WebAPI
         {
             await CheckAuthToken();
 
-            var httpClient = new HttpClient();
+            //var httpClient = new HttpClient();
 
-            httpClient.DefaultRequestHeaders.Authorization =
-               new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
-            httpClient.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
-            httpClient.DefaultRequestHeaders.Add("OData-Version", "4.0");
+            //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _crmWebAPIConfig.AccessToken);
+            //httpClient.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
+            //httpClient.DefaultRequestHeaders.Add("OData-Version", "4.0");
             var batchid = "batch_" + Guid.NewGuid().ToString();
 
             MultipartContent batchContent = new MultipartContent("mixed", batchid);
@@ -489,6 +488,8 @@ namespace Xrm.Tools.WebAPI
                 HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, _crmWebAPIConfig.APIUrl + entityCollection);
 
                 req.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+                req.Version = new Version(major: 1, minor: 1);
+
                 HttpMessageContent content = new HttpMessageContent(req);
                 content.Headers.Remove("Content-Type");
                 content.Headers.TryAddWithoutValidation("Content-Type", "application/http");
@@ -506,9 +507,9 @@ namespace Xrm.Tools.WebAPI
 
             var batchstring = await batchRequest.Content.ReadAsStringAsync();
 
-            var response = await httpClient.SendAsync(batchRequest);
+            var response = await _httpClient.SendAsync(batchRequest);
             var responseString = response.Content.ReadAsStringAsync();
-            MultipartMemoryStreamProvider batchStream = await response.Content.ReadAsMultipartAsync(); ;
+            MultipartMemoryStreamProvider batchStream = await response.Content.ReadAsMultipartAsync();
             var changesetStream = batchStream.Contents.FirstOrDefault();
 
             StreamContent changesetFixedContent = FixupChangeStreamDueToBug(changesetStream);
