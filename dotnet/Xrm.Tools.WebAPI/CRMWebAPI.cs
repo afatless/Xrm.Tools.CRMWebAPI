@@ -488,7 +488,7 @@ namespace Xrm.Tools.WebAPI
                 HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, _crmWebAPIConfig.APIUrl + entityCollection);
 
                 req.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
-                req.Version = new Version(major: 1, minor: 1);
+                //req.Version = new Version(major: 1, minor: 1);
 
                 HttpMessageContent content = new HttpMessageContent(req);
                 content.Headers.Remove("Content-Type");
@@ -508,6 +508,7 @@ namespace Xrm.Tools.WebAPI
             var batchstring = await batchRequest.Content.ReadAsStringAsync();
 
             var response = await _httpClient.SendAsync(batchRequest);
+
             var responseString = response.Content.ReadAsStringAsync();
             MultipartMemoryStreamProvider batchStream = await response.Content.ReadAsMultipartAsync();
             var changesetStream = batchStream.Contents.FirstOrDefault();
