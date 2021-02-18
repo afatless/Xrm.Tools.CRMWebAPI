@@ -613,7 +613,9 @@ namespace Xrm.Tools.WebAPI
             if (!Upsert)
                 request.Headers.Add("If-Match", "*");
 
-            var response = await _httpClient.SendAsync(request);
+            //var response = await _httpClient.SendAsync(request);
+            var response = await _registry.Get<IAsyncPolicy<HttpResponseMessage>>("WaitAndRetryPolicy")
+                                .ExecuteAsync(() => _httpClient.SendAsync(request));
 
             result.EntityID = GetEntityIDFromResponse(response);
 
